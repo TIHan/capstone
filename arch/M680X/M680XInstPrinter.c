@@ -11,8 +11,6 @@
 #include "../../MCInst.h"
 #include "../../SStream.h"
 #include "../../MCRegisterInfo.h"
-#include "../../Mapping.h"
-#include "../../MCInstPrinter.h"
 #include "../../utils.h"
 #include "M680XInstPrinter.h"
 #include "M680XDisassembler.h"

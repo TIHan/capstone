@@ -21,7 +21,6 @@ all_tests = (
 def test_class():
     address = 0x80001000
     for (arch, mode, code, comment) in all_tests:
-        print("*" * 16)
         print("Platform: %s" % comment)
         print("Code: %s " % to_hex(code))
         print("Disasm:")
@@ -42,7 +41,6 @@ def test_class():
                     for m in i.groups:
                         print("%s " % i.group_name(m), end=''),
                     print()
-            print ("0x%x:\n" % (i.address + i.size))
 
         except CsError as e:
             print("ERROR: %s" % e.__str__())

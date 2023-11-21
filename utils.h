@@ -11,6 +11,7 @@
 #include "include/capstone/capstone.h"
 #endif
 #include "cs_priv.h"
+#include "Mapping.h"
 
 // threshold number, so above this number will be printed in hexa mode
 #define HEX_THRESHOLD 9
@@ -37,10 +38,17 @@ bool arr_exist8(unsigned char *arr, unsigned char max, unsigned int id);
 
 bool arr_exist(uint16_t *arr, unsigned char max, unsigned int id);
 
+struct IndexType {
+	uint16_t encoding;
+	unsigned index;
+};
+
+// binary search for encoding in IndexType array
+// return -1 if not found, or index if found
+unsigned int binsearch_IndexTypeEncoding(const struct IndexType *index, size_t size, uint16_t encoding);
+
 uint16_t readBytes16(MCInst *MI, const uint8_t *Bytes);
 uint32_t readBytes32(MCInst *MI, const uint8_t *Bytes);
 
-void append_to_str_lower(char *str, size_t str_size, const char *src);
-static inline bool strings_match(const char *str0, const char *str1) { return strcmp(str0, str1) == 0; }
 #endif
 

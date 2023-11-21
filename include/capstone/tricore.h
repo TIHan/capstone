@@ -12,7 +12,6 @@ extern "C" {
 #include <stdint.h>
 #endif
 
-#include "cs_operand.h"
 #include "platform.h"
 
 #ifdef _MSC_VER

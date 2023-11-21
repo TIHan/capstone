@@ -17,7 +17,6 @@ extern "C" {
 #include <stdio.h>
 #endif
 
-#include "cs_operand.h"
 #include "platform.h"
 
 #ifdef _MSC_VER
@@ -54,12 +53,12 @@ extern "C" {
 // Version for bleeding edge code of the Github's "next" branch.
 // Use this if you want the absolutely latest development code.
 // This version number will be bumped up whenever we have a new major change.
-#define CS_NEXT_VERSION 6
+#define CS_NEXT_VERSION 5
 
 // Capstone package version
 #define CS_VERSION_MAJOR CS_API_MAJOR
 #define CS_VERSION_MINOR CS_API_MINOR
-#define CS_VERSION_EXTRA 0
+#define CS_VERSION_EXTRA 1
 
 /// Macro to create combined version which can be compared to
 /// result of cs_version() API.
@@ -74,7 +73,7 @@ typedef size_t csh;
 /// Architecture type
 typedef enum cs_arch {
 	CS_ARCH_ARM = 0,	///< ARM architecture (including Thumb, Thumb-2)
-	CS_ARCH_AARCH64,	///< AArch64
+	CS_ARCH_ARM64,		///< ARM-64, also called AArch64
 	CS_ARCH_MIPS,		///< Mips architecture
 	CS_ARCH_X86,		///< X86 architecture (including x86 & x86-64)
 	CS_ARCH_PPC,		///< PowerPC architecture
@@ -217,17 +216,32 @@ typedef enum cs_opt_type {
 /// Runtime option value (associated with option type above)
 typedef enum cs_opt_value {
 	CS_OPT_OFF = 0,  ///< Turn OFF an option - default for CS_OPT_DETAIL, CS_OPT_SKIPDATA, CS_OPT_UNSIGNED.
-	CS_OPT_ON = 1 << 0, ///< Turn ON an option (CS_OPT_DETAIL, CS_OPT_SKIPDATA).
-	CS_OPT_SYNTAX_DEFAULT = 1 << 1, ///< Default asm syntax (CS_OPT_SYNTAX).
-	CS_OPT_SYNTAX_INTEL = 1 << 2, ///< X86 Intel asm syntax - default on X86 (CS_OPT_SYNTAX).
-	CS_OPT_SYNTAX_ATT = 1 << 3,   ///< X86 ATT asm syntax (CS_OPT_SYNTAX).
-	CS_OPT_SYNTAX_NOREGNAME = 1 << 4, ///< Prints register name with only number (CS_OPT_SYNTAX)
-	CS_OPT_SYNTAX_MASM = 1 << 5, ///< X86 Intel Masm syntax (CS_OPT_SYNTAX).
-	CS_OPT_SYNTAX_MOTOROLA = 1 << 6, ///< MOS65XX use $ as hex prefix
-	CS_OPT_SYNTAX_CS_REG_ALIAS = 1 << 7, ///< Prints common register alias which are not defined in LLVM (ARM: r9 = sb etc.)
-	CS_OPT_SYNTAX_PERCENT = 1 << 8, ///< Prints the % in front of PPC registers.
-	CS_OPT_DETAIL_REAL = 1 << 1, ///< If enabled, always sets the real instruction detail. Even if the instruction is an alias.
+	CS_OPT_ON = 3, ///< Turn ON an option (CS_OPT_DETAIL, CS_OPT_SKIPDATA).
+	CS_OPT_SYNTAX_DEFAULT = 0, ///< Default asm syntax (CS_OPT_SYNTAX).
+	CS_OPT_SYNTAX_INTEL, ///< X86 Intel asm syntax - default on X86 (CS_OPT_SYNTAX).
+	CS_OPT_SYNTAX_ATT,   ///< X86 ATT asm syntax (CS_OPT_SYNTAX).
+	CS_OPT_SYNTAX_NOREGNAME, ///< Prints register name with only number (CS_OPT_SYNTAX)
+	CS_OPT_SYNTAX_MASM, ///< X86 Intel Masm syntax (CS_OPT_SYNTAX).
+	CS_OPT_SYNTAX_MOTOROLA, ///< MOS65XX use $ as hex prefix
 } cs_opt_value;
+
+/// Common instruction operand types - to be consistent across all architectures.
+typedef enum cs_op_type {
+	CS_OP_INVALID = 0, ///< uninitialized/invalid operand.
+	CS_OP_REG,	   ///< Register operand.
+	CS_OP_IMM,	   ///< Immediate operand.
+	CS_OP_FP,	   ///< Floating-Point operand.
+	CS_OP_MEM =
+		0x80, ///< Memory operand. Can be ORed with another operand type.
+} cs_op_type;
+
+/// Common instruction operand access types - to be consistent across all architectures.
+/// It is possible to combine access types, for example: CS_AC_READ | CS_AC_WRITE
+typedef enum cs_ac_type {
+	CS_AC_INVALID = 0,        ///< Uninitialized/invalid access type.
+	CS_AC_READ    = 1 << 0,   ///< Operand read from memory or register.
+	CS_AC_WRITE   = 1 << 1,   ///< Operand write to memory or register.
+} cs_ac_type;
 
 /// Common instruction groups - to be consistent across all architectures.
 typedef enum cs_group_type {
@@ -272,7 +286,7 @@ typedef struct cs_opt_skipdata {
 	/// NOTE: if this callback pointer is NULL, Capstone would skip a number
 	/// of bytes depending on architectures, as following:
 	/// Arm:     2 bytes (Thumb mode) or 4 bytes.
-	/// AArch64: 4 bytes.
+	/// Arm64:   4 bytes.
 	/// Mips:    4 bytes.
 	/// M680x:   1 byte.
 	/// PowerPC: 4 bytes.
@@ -294,7 +308,7 @@ typedef struct cs_opt_skipdata {
 
 
 #include "arm.h"
-#include "aarch64.h"
+#include "arm64.h"
 #include "m68k.h"
 #include "mips.h"
 #include "ppc.h"
@@ -338,7 +352,7 @@ typedef struct cs_detail {
 	/// Architecture-specific instruction info
 	union {
 		cs_x86 x86;     ///< X86 architecture, including 16-bit, 32-bit & 64-bit mode
-		cs_aarch64 aarch64; ///< AARCH64 architecture (aka AArch64)
+		cs_arm64 arm64; ///< ARM64 architecture (aka AArch64)
 		cs_arm arm;     ///< ARM architecture (including Thumb/Thumb2)
 		cs_m68k m68k;   ///< M68K architecture
 		cs_mips mips;   ///< MIPS architecture
@@ -368,12 +382,6 @@ typedef struct cs_insn {
 	/// NOTE: in Skipdata mode, "data" instruction has 0 for this id field.
 	unsigned int id;
 
-	/// If this instruction is an alias instruction, this member is set with
-	/// the alias ID.
-	/// Otherwise to <ARCH>_INS_INVALID.
-	/// -- Only supported by auto-sync archs --
-	uint64_t alias_id;
-
 	/// Address (EIP) of this instruction
 	/// This information is available even when CS_OPT_DETAIL = CS_OPT_OFF
 	uint64_t address;
@@ -393,15 +401,6 @@ typedef struct cs_insn {
 	/// Ascii text of instruction operands
 	/// This information is available even when CS_OPT_DETAIL = CS_OPT_OFF
 	char op_str[160];
-
-	/// True: This instruction is an alias.
-	/// False: Otherwise.
-	/// -- Only supported by auto-sync archs --
-	bool is_alias;
-
-	/// True: The operands are the ones of the alias instructions.
-	/// False: The detail operands are from the real instruction.
-	bool usesAliasDetails;
 
 	/// Pointer to cs_detail.
 	/// NOTE: detail pointer is only valid when both requirements below are met:

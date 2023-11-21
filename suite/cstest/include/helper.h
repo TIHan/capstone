@@ -24,7 +24,6 @@ void add_str(char **src, const char *format, ...);
 void trim_str(char *src);
 void replace_hex(char *src);
 void replace_negative(char *src, int mode);
-void replace_tabs(char *str);
 const char *get_filename_ext(const char *filename);
 
 char *readfile(const char *filename);

@@ -38,11 +38,12 @@ struct MCOperand {
 		kDFPImmediate, ///< Double-Floating-point immediate operand.
 		kExpr,	       ///< Relocatable immediate operand.
 		kInst	       ///< Sub-instruction operand.
+
 	} MachineOperandType;
 	unsigned char Kind;
 
 	union {
-		uint64_t RegVal;
+		unsigned RegVal;
 		int64_t ImmVal;
 		double FPImmVal;
 	};
@@ -68,7 +69,7 @@ unsigned MCOperand_getReg(const MCOperand *op);
 /// setReg - Set the register number.
 void MCOperand_setReg(MCOperand *op, unsigned Reg);
 
-int64_t MCOperand_getImm(const MCOperand *op);
+int64_t MCOperand_getImm(MCOperand *op);
 
 void MCOperand_setImm(MCOperand *op, int64_t Val);
 
@@ -129,8 +130,6 @@ struct MCInst {
 	cs_wasm_op wasm_data;    // for WASM operand
 	MCRegisterInfo *MRI;
 	uint8_t xAcquireRelease;   // X86 xacquire/xrelease
-	bool isAliasInstr; // Flag if this MCInst is an alias.
-	bool fillDetailOps; // If set, detail->operands gets filled.
 };
 
 void MCInst_Init(MCInst *inst);
@@ -162,15 +161,5 @@ void MCInst_handleWriteback(MCInst *MI, const MCInstrDesc *InstDesc);
 bool MCInst_opIsTied(const MCInst *MI, unsigned OpNum);
 
 bool MCInst_opIsTying(const MCInst *MI, unsigned OpNum);
-
-uint64_t MCInst_getOpVal(MCInst *MI, unsigned OpNum);
-
-void MCInst_setIsAlias(MCInst *MI, bool Flag);
-
-static inline bool MCInst_isAlias(const MCInst *MI) {
-	return MI->isAliasInstr;
-}
-
-void MCInst_updateWithTmpMI(MCInst *MI, MCInst *TmpMI);
 
 #endif

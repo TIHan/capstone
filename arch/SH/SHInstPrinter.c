@@ -2,8 +2,6 @@
 /* By Yoshinori Sato, 2022 */
 
 #include <string.h>
-
-#include "../../Mapping.h"
 #include "SHInstPrinter.h"
 
 

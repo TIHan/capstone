@@ -23,7 +23,6 @@
 
 #include "../../MCInst.h"
 #include "../../MCRegisterInfo.h"
-#include "../../Mapping.h"
 #include "../../MathExtras.h"
 #include "../../SStream.h"
 #include "../../utils.h"

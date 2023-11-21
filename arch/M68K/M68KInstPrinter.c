@@ -21,7 +21,6 @@
 #include "M68KDisassembler.h"
 
 #include "../../cs_priv.h"
-#include "../../Mapping.h"
 #include "../../utils.h"
 
 #include "../../MCInst.h"

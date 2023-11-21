@@ -24,7 +24,7 @@ __all__ = [
     'CS_VERSION_EXTRA',
 
     'CS_ARCH_ARM',
-    'CS_ARCH_AARCH64',
+    'CS_ARCH_ARM64',
     'CS_ARCH_MIPS',
     'CS_ARCH_X86',
     'CS_ARCH_PPC',
@@ -194,13 +194,13 @@ CS_API_MINOR = 0
 # Package version
 CS_VERSION_MAJOR = CS_API_MAJOR
 CS_VERSION_MINOR = CS_API_MINOR
-CS_VERSION_EXTRA = 0
+CS_VERSION_EXTRA = 1
 
 __version__ = "%u.%u.%u" %(CS_VERSION_MAJOR, CS_VERSION_MINOR, CS_VERSION_EXTRA)
 
 # architectures
 CS_ARCH_ARM = 0
-CS_ARCH_AARCH64 = 1
+CS_ARCH_ARM64 = 1
 CS_ARCH_MIPS = 2
 CS_ARCH_X86 = 3
 CS_ARCH_PPC = 4
@@ -334,7 +334,6 @@ CS_GRP_BRANCH_RELATIVE = 7 # all relative branching instructions
 CS_AC_INVALID  = 0        # Invalid/unitialized access type.
 CS_AC_READ     = (1 << 0) # Operand that is read from.
 CS_AC_WRITE    = (1 << 1) # Operand that is written to.
-CS_AC_READ_WRITE = (2)
 
 # Capstone syntax value
 CS_OPT_SYNTAX_DEFAULT = 1 << 1  # Default assembly syntax of all platforms (CS_OPT_SYNTAX)
@@ -441,11 +440,11 @@ def copy_ctypes_list(src):
     return [copy_ctypes(n) for n in src]
 
 # Weird import placement because these modules are needed by the below code but need the above functions
-from . import arm, aarch64, m68k, mips, ppc, sparc, systemz, x86, xcore, tms320c64x, m680x, evm, mos65xx, wasm, bpf, riscv, sh, tricore
+from . import arm, arm64, m68k, mips, ppc, sparc, systemz, x86, xcore, tms320c64x, m680x, evm, mos65xx, wasm, bpf, riscv, sh, tricore
 
 class _cs_arch(ctypes.Union):
     _fields_ = (
-        ('aarch64', aarch64.CsAArch64),
+        ('arm64', arm64.CsArm64),
         ('arm', arm.CsArm),
         ('m68k', m68k.CsM68K),
         ('mips', mips.CsMips),
@@ -480,14 +479,11 @@ class _cs_detail(ctypes.Structure):
 class _cs_insn(ctypes.Structure):
     _fields_ = (
         ('id', ctypes.c_uint),
-        ('alias_id', ctypes.c_uint64),
         ('address', ctypes.c_uint64),
         ('size', ctypes.c_uint16),
         ('bytes', ctypes.c_ubyte * 24),
         ('mnemonic', ctypes.c_char * 32),
         ('op_str', ctypes.c_char * 160),
-        ('is_alias', ctypes.c_bool),
-        ('usesAliasDetails', ctypes.c_bool),
         ('detail', ctypes.POINTER(_cs_detail)),
     )
 
@@ -515,8 +511,6 @@ def _setup_prototype(lib, fname, restype, *argtypes):
 _setup_prototype(_cs, "cs_open", ctypes.c_int, ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_size_t))
 _setup_prototype(_cs, "cs_disasm", ctypes.c_size_t, ctypes.c_size_t, ctypes.POINTER(ctypes.c_char), ctypes.c_size_t, \
         ctypes.c_uint64, ctypes.c_size_t, ctypes.POINTER(ctypes.POINTER(_cs_insn)))
-_setup_prototype(_cs, "cs_disasm_iter", ctypes.c_bool, ctypes.c_size_t, ctypes.POINTER(ctypes.POINTER(ctypes.c_char)), ctypes.POINTER(ctypes.c_size_t), \
-                 ctypes.POINTER(ctypes.c_uint64), ctypes.POINTER(_cs_insn))
 _setup_prototype(_cs, "cs_free", None, ctypes.c_void_p, ctypes.c_size_t)
 _setup_prototype(_cs, "cs_close", ctypes.c_int, ctypes.POINTER(ctypes.c_size_t))
 _setup_prototype(_cs, "cs_reg_name", ctypes.c_char_p, ctypes.c_size_t, ctypes.c_uint)
@@ -605,6 +599,7 @@ def cs_disasm_quick(arch, mode, code, offset, count=0):
     status = _cs.cs_close(ctypes.byref(csh))
     if status != CS_ERR_OK:
         raise CsError(status)
+
 
 # Another quick, but lighter function to disasm raw binary code.
 # This function is faster than cs_disasm_quick() around 20% because
@@ -746,21 +741,6 @@ class CsInsn(object):
             return self._raw.detail.contents.groups[:self._raw.detail.contents.groups_count]
 
         raise CsError(CS_ERR_DETAIL)
-    
-    # return whether instruction has writeback operands.
-    @property
-    def writeback(self):
-        if self._raw.id == 0:
-            raise CsError(CS_ERR_SKIPDATA)
-
-        if self._cs._diet:
-            # Diet engine cannot provide @writeback.
-            raise CsError(CS_ERR_DIET)
-
-        if self._cs._detail:
-            return self._raw.detail.contents.writeback
-
-        raise CsError(CS_ERR_DETAIL)
 
     def __gen_detail(self):
         if self._raw.id == 0:
@@ -769,11 +749,11 @@ class CsInsn(object):
 
         arch = self._cs.arch
         if arch == CS_ARCH_ARM:
-            (self.usermode, self.vector_size, self.vector_data, self.cps_mode, self.cps_flag, self.cc, self.vcc, self.update_flags, \
-            self.post_index, self.mem_barrier, self.pred_mask, self.operands) = arm.get_arch_info(self._raw.detail.contents.arch.arm) 
-        elif arch == CS_ARCH_AARCH64:
-            (self.cc, self.update_flags, self.post_index, self.operands) = \
-                aarch64.get_arch_info(self._raw.detail.contents.arch.aarch64)
+            (self.usermode, self.vector_size, self.vector_data, self.cps_mode, self.cps_flag, self.cc, self.update_flags, \
+            self.writeback, self.post_index, self.mem_barrier, self.operands) = arm.get_arch_info(self._raw.detail.contents.arch.arm) 
+        elif arch == CS_ARCH_ARM64:
+            (self.cc, self.update_flags, self.writeback, self.post_index, self.operands) = \
+                arm64.get_arch_info(self._raw.detail.contents.arch.arm64)
         elif arch == CS_ARCH_X86:
             (self.prefix, self.opcode, self.rex, self.addr_size, \
                 self.modrm, self.sib, self.disp, \
@@ -786,7 +766,7 @@ class CsInsn(object):
         elif arch == CS_ARCH_MIPS:
                 self.operands = mips.get_arch_info(self._raw.detail.contents.arch.mips)
         elif arch == CS_ARCH_PPC:
-            (self.bc, self.update_cr0, self.operands) = \
+            (self.bc, self.bh, self.update_cr0, self.operands) = \
                 ppc.get_arch_info(self._raw.detail.contents.arch.ppc)
         elif arch == CS_ARCH_SPARC:
             (self.cc, self.hint, self.operands) = sparc.get_arch_info(self._raw.detail.contents.arch.sparc)
@@ -1224,32 +1204,6 @@ class Cs(object):
             return
             yield
 
-    # This function matches the cs_disasm_iter implementation which
-    # *should* be much faster via the C API due to pre-allocating
-    # memory (https://www.capstone-engine.org/iteration.html).
-    # Note: It is unclear whether this function via the Python
-    # binding provides the same speedup like cs_disasm_lite.
-    def disasm_iter(self, code, offset):
-        if self._diet:
-            # Diet engine cannot provide @mnemonic & @op_str
-            raise CsError(CS_ERR_DIET)
-        insn = _cs_insn()
-        size = ctypes.c_size_t(len(code))
-
-        # Pass a bytearray by reference
-        view = memoryview(code)
-        code = ctypes.pointer(ctypes.c_char.from_buffer_copy(view))
-        if view.readonly:
-            code = (ctypes.c_char * len(view)).from_buffer_copy(view)
-        else: 
-            code = ctypes.pointer(ctypes.c_char.from_buffer(view))
-
-        # since we are taking a pointer to a pointer, ctypes does not do
-        # the typical auto conversion, so we have to cast it here.
-        code = ctypes.cast(code, ctypes.POINTER(ctypes.c_char))
-        address = ctypes.c_uint64(offset)
-        while _cs.cs_disasm_iter(self.csh, ctypes.byref(code), ctypes.byref(size), ctypes.byref(address), ctypes.byref(insn)):
-            yield (insn.address, insn.size, insn.mnemonic.decode('ascii'), insn.op_str.decode('ascii'))
 
     # Light function to disassemble binary. This is about 20% faster than disasm() because
     # unlike disasm(), disasm_lite() only return tuples of (address, size, mnemonic, op_str),
@@ -1299,7 +1253,7 @@ def debug():
         diet = "standard"
 
     archs = {
-        "arm": CS_ARCH_ARM, "aarch64": CS_ARCH_AARCH64, "m68k": CS_ARCH_M68K,
+        "arm": CS_ARCH_ARM, "arm64": CS_ARCH_ARM64, "m68k": CS_ARCH_M68K,
         "mips": CS_ARCH_MIPS, "ppc": CS_ARCH_PPC, "sparc": CS_ARCH_SPARC,
         "sysz": CS_ARCH_SYSZ, 'xcore': CS_ARCH_XCORE, "tms320c64x": CS_ARCH_TMS320C64X,
         "m680x": CS_ARCH_M680X, 'evm': CS_ARCH_EVM, 'mos65xx': CS_ARCH_MOS65XX,

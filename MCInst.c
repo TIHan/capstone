@@ -27,6 +27,7 @@ void MCInst_Init(MCInst *inst)
 	inst->size = 0;
 	inst->has_imm = false;
 	inst->op1_size = 0;
+	inst->writeback = false;
 	inst->ac_idx = 0;
 	inst->popcode_adjust = 0;
 	inst->assembly[0] = '\0';
@@ -34,8 +35,6 @@ void MCInst_Init(MCInst *inst)
 	inst->xAcquireRelease = 0;
 	for (int i = 0; i < MAX_MC_OPS; ++i)
 		inst->tied_op_idx[i] = -1;
-	inst->isAliasInstr = false;
-	inst->fillDetailOps = false;
 }
 
 void MCInst_clear(MCInst *inst)
@@ -144,7 +143,7 @@ void MCOperand_setReg(MCOperand *op, unsigned Reg)
 	op->RegVal = Reg;
 }
 
-int64_t MCOperand_getImm(const MCOperand *op)
+int64_t MCOperand_getImm(MCOperand *op)
 {
 	return op->ImmVal;
 }
@@ -268,35 +267,4 @@ bool MCInst_opIsTying(const MCInst *MI, unsigned OpNum)
 {
 	assert(OpNum < MAX_MC_OPS && "Maximum number of MC operands exceeded.");
 	return MI->tied_op_idx[OpNum] != -1;
-}
-
-/// Returns the value of the @MCInst operand at index @OpNum.
-uint64_t MCInst_getOpVal(MCInst *MI, unsigned OpNum)
-{
-	assert(OpNum < MAX_MC_OPS);
-	MCOperand *op = MCInst_getOperand(MI, OpNum);
-	if (MCOperand_isReg(op))
-		return MCOperand_getReg(op);
-	else if (MCOperand_isImm(op))
-		return MCOperand_getImm(op);
-	else
-		assert(0 && "Operand type not handled in this getter.");
-	return MCOperand_getImm(op);
-}
-
-void MCInst_setIsAlias(MCInst *MI, bool Flag) {
-	assert(MI);
-	MI->isAliasInstr = Flag;
-	MI->flat_insn->is_alias = Flag;
-}
-
-/// @brief Copies the relevant members of a temporary MCInst to
-/// the main MCInst. This is used if TryDecode was run on a temporary MCInst.
-/// @param MI The main MCInst
-/// @param TmpMI The temporary MCInst.
-void MCInst_updateWithTmpMI(MCInst *MI, MCInst *TmpMI) {
-	MI->size = TmpMI->size;
-	MI->Opcode = TmpMI->Opcode;
-	assert(MI->size < MAX_MC_OPS);
-	memcpy(MI->Operands, TmpMI->Operands, sizeof(MI->Operands[0]) * MI->size);
 }

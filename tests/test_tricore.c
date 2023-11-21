@@ -132,6 +132,8 @@ static void test()
 			printf("ERROR: Failed to disasm given code!\n");
 		}
 
+		printf("\n");
+
 		cs_close(&handle);
 	}
 }

@@ -29,23 +29,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -163,12 +167,13 @@
     <ClCompile Include="..\..\cstool\cstool_m68k.c" />
     <ClCompile Include="..\..\cstool\cstool_mips.c" />
     <ClCompile Include="..\..\cstool\cstool_mos65xx.c" />
-    <ClCompile Include="..\..\cstool\cstool_ppc.c" />
+    <ClCompile Include="..\..\cstool\cstool_powerpc.c" />
     <ClCompile Include="..\..\cstool\cstool_riscv.c" />
     <ClCompile Include="..\..\cstool\cstool_sh.c" />
     <ClCompile Include="..\..\cstool\cstool_sparc.c" />
     <ClCompile Include="..\..\cstool\cstool_systemz.c" />
     <ClCompile Include="..\..\cstool\cstool_tms320c64x.c" />
+    <ClCompile Include="..\..\cstool\cstool_tricore.c" />
     <ClCompile Include="..\..\cstool\cstool_wasm.c" />
     <ClCompile Include="..\..\cstool\cstool_x86.c" />
     <ClCompile Include="..\..\cstool\cstool_xcore.c" />
