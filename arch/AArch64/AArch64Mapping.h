@@ -14,6 +14,8 @@ typedef enum {
 #include "AArch64GenCSOpGroup.inc"
 } aarch64_op_group;
 
+const char *get_custom_reg_alias(unsigned reg);
+
 // return name of regiser in friendly string
 const char *AArch64_reg_name(csh handle, unsigned int reg);
 

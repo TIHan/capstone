@@ -113,7 +113,7 @@ static const name_map insn_alias_mnem_map[] = {
 	{ AArch64_INS_ALIAS_END, NULL },
 };
 
-static const char *get_custom_reg_alias(unsigned reg)
+const char *get_custom_reg_alias(unsigned reg)
 {
 	switch (reg) {
 	case AArch64_REG_X29:

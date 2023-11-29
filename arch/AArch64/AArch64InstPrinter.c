@@ -73,7 +73,12 @@ static void printFPImmOperand(MCInst *MI, unsigned OpNum, SStream *O);
 
 void printRegName(SStream *OS, unsigned Reg)
 {
-	SStream_concat(OS, "%s%s", markup("<reg:"), getRegisterName(Reg, AArch64_NoRegAltName));
+	char *regName = get_custom_reg_alias(Reg);
+	if (regName == NULL)
+	{
+		regName = getRegisterName(Reg, AArch64_NoRegAltName);
+	}
+	SStream_concat(OS, "%s%s", markup("<reg:"), regName);
 	SStream_concat0(OS, markup(">"));
 }
 
@@ -1519,7 +1524,7 @@ void printArithExtend(MCInst *MI, unsigned OpNum, SStream *O)
 			((Dest == AArch64_WSP || Src1 == AArch64_WSP) &&
 			 ExtType == AArch64_AM_UXTW)) {
 			if (ShiftVal != 0) {
-				SStream_concat(O, "%s%s", ", lsl ", markup("<imm:"));
+				SStream_concat(O, "%s%s", ", LSL ", markup("<imm:"));
 				printUInt32Bang(O, ShiftVal);
 				SStream_concat0(O, markup(">"));
 			}

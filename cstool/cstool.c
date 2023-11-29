@@ -627,11 +627,8 @@ int main(int argc, char **argv)
 		for (i = 0; i < count; i++) {
 			int j;
 
-			printf("%2"PRIx64"  ", insn[i].address);
 			for (j = 0; j < insn[i].size; j++) {
-				if (j > 0)
-					putchar(' ');
-				printf("%02x", insn[i].bytes[j]);
+				printf("%02X", insn[i].bytes[j]);
 			}
 			// Align instruction when it varies in size.
 			// ex: x86, s390x or compressed riscv

@@ -69,31 +69,31 @@ AArch64_AM_getShiftExtendName(AArch64_AM_ShiftExtendType ST)
 	default:
 		assert(0 && "unhandled shift type!");
 	case AArch64_AM_LSL:
-		return "lsl";
+		return "LSL";
 	case AArch64_AM_LSR:
-		return "lsr";
+		return "LSR";
 	case AArch64_AM_ASR:
-		return "asr";
+		return "ASR";
 	case AArch64_AM_ROR:
-		return "ror";
+		return "ROR";
 	case AArch64_AM_MSL:
-		return "msl";
+		return "MSL";
 	case AArch64_AM_UXTB:
-		return "uxtb";
+		return "UXTB";
 	case AArch64_AM_UXTH:
-		return "uxth";
+		return "UXTH";
 	case AArch64_AM_UXTW:
-		return "uxtw";
+		return "UXTW";
 	case AArch64_AM_UXTX:
-		return "uxtx";
+		return "UXTX";
 	case AArch64_AM_SXTB:
-		return "sxtb";
+		return "SXTB";
 	case AArch64_AM_SXTH:
-		return "sxth";
+		return "SXTH";
 	case AArch64_AM_SXTW:
-		return "sxtw";
+		return "SXTW";
 	case AArch64_AM_SXTX:
-		return "sxtx";
+		return "SXTX";
 	}
 	return NULL;
 }
