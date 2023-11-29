@@ -29,23 +29,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -110,7 +114,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutputPath);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>capstone.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -150,29 +154,35 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutputPath);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>capstone.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cstool\cstool.c" />
+    <ClCompile Include="..\..\cstool\cstool_aarch64.c" />
     <ClCompile Include="..\..\cstool\cstool_arm.c" />
-    <ClCompile Include="..\..\cstool\cstool_arm64.c" />
     <ClCompile Include="..\..\cstool\cstool_bpf.c" />
     <ClCompile Include="..\..\cstool\cstool_evm.c" />
     <ClCompile Include="..\..\cstool\cstool_m680x.c" />
     <ClCompile Include="..\..\cstool\cstool_m68k.c" />
     <ClCompile Include="..\..\cstool\cstool_mips.c" />
     <ClCompile Include="..\..\cstool\cstool_mos65xx.c" />
-    <ClCompile Include="..\..\cstool\cstool_ppc.c" />
+    <ClCompile Include="..\..\cstool\cstool_powerpc.c" />
     <ClCompile Include="..\..\cstool\cstool_riscv.c" />
     <ClCompile Include="..\..\cstool\cstool_sh.c" />
     <ClCompile Include="..\..\cstool\cstool_sparc.c" />
     <ClCompile Include="..\..\cstool\cstool_systemz.c" />
     <ClCompile Include="..\..\cstool\cstool_tms320c64x.c" />
+    <ClCompile Include="..\..\cstool\cstool_tricore.c" />
     <ClCompile Include="..\..\cstool\cstool_wasm.c" />
     <ClCompile Include="..\..\cstool\cstool_x86.c" />
     <ClCompile Include="..\..\cstool\cstool_xcore.c" />
     <ClCompile Include="..\..\cstool\getopt.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\capstone_dll\capstone_dll.vcxproj">
+      <Project>{2171c0e8-4915-49b9-ac23-a484fa08c126}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

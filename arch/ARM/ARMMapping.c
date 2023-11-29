@@ -71,7 +71,7 @@ const char *ARM_reg_name(csh handle, unsigned int reg)
 	return ARM_LLVM_getRegisterName(reg, ARM_RegNamesRaw);
 }
 
-const insn_map arm_insns[] = {
+const insn_map arm_insns[] = { 
 #include "ARMGenCSMappingInsn.inc"
 };
 
