@@ -148,11 +148,24 @@ static uint8_t char_to_hexnum(char c)
 
 // convert user input (char[]) to uint8_t[], each element of which is
 // valid hexadecimal, and return actual length of uint8_t[] in @size.
-static uint8_t *preprocess(char *code, size_t *size)
+static uint8_t *preprocess(char *codeFile, size_t *size)
 {
 	size_t i = 0, j = 0;
 	uint8_t high, low;
 	uint8_t *result;
+
+	FILE *codef = fopen(codeFile, "r");
+
+	fseek(codef, 0, SEEK_END);
+	auto sizef = ftell(codef);
+	fseek(codef, 0, SEEK_SET);
+
+	char *code = malloc(sizef + 1);
+	if (fread(code, sizeof(char), sizef / sizeof(char), codef) == 0) {
+		return NULL;
+	}
+	code[sizef] = 0;
+	fclose(codef);
 
 	if (strlen(code) == 0)
 		return NULL;
