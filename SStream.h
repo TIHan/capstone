@@ -42,7 +42,6 @@ void printInt32Bang(SStream *O, int32_t val);
 
 void printInt32(SStream *O, int32_t val);
 
-void printUInt32BangDec(SStream *O, uint32_t val);
 void printUInt32Bang(SStream *O, uint32_t val);
 
 void printUInt32(SStream *O, uint32_t val);

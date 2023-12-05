@@ -216,20 +216,14 @@ void printInt32(SStream *O, int32_t val)
 	}
 }
 
-void printUInt32BangDec(SStream *O, uint32_t val)
-{
-	SSTREAM_RETURN_IF_CLOSED(O);
-	SStream_concat(O, "#%u", val);
-}
-
 void printUInt32Bang(SStream *O, uint32_t val)
 {
 	printUInt32BangDec(O, val);
-	//SSTREAM_RETURN_IF_CLOSED(O);
-	//if (val > HEX_THRESHOLD)
-	//	SStream_concat(O, "#0x%X", val);
-	//else
-	//	SStream_concat(O, "#%u", val);
+	SSTREAM_RETURN_IF_CLOSED(O);
+	if (val > HEX_THRESHOLD)
+		SStream_concat(O, "#0x%X", val);
+	else
+		SStream_concat(O, "#%u", val);
 }
 
 void printUInt32(SStream *O, uint32_t val)
