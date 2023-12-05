@@ -96,6 +96,17 @@ void SStream_concat(SStream *ss, const char *fmt, ...)
 }
 
 // print number with prefix #
+void printInt64BangDec(SStream *O, int64_t val)
+{
+	SSTREAM_RETURN_IF_CLOSED(O);
+	if (val >= 0) {
+		SStream_concat(O, "#%" PRIu64, val);
+	} else {
+		SStream_concat(O, "#-%" PRIu64, -val);
+	}
+}
+
+// print number with prefix #
 void printInt64Bang(SStream *O, int64_t val)
 {
 	SSTREAM_RETURN_IF_CLOSED(O);
@@ -205,13 +216,20 @@ void printInt32(SStream *O, int32_t val)
 	}
 }
 
-void printUInt32Bang(SStream *O, uint32_t val)
+void printUInt32BangDec(SStream *O, uint32_t val)
 {
 	SSTREAM_RETURN_IF_CLOSED(O);
-	if (val > HEX_THRESHOLD)
-		SStream_concat(O, "#0x%X", val);
-	else
-		SStream_concat(O, "#%u", val);
+	SStream_concat(O, "#%u", val);
+}
+
+void printUInt32Bang(SStream *O, uint32_t val)
+{
+	printUInt32BangDec(O, val);
+	//SSTREAM_RETURN_IF_CLOSED(O);
+	//if (val > HEX_THRESHOLD)
+	//	SStream_concat(O, "#0x%X", val);
+	//else
+	//	SStream_concat(O, "#%u", val);
 }
 
 void printUInt32(SStream *O, uint32_t val)

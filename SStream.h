@@ -30,6 +30,7 @@ void SStream_concat0(SStream *ss, const char *s);
 
 void SStream_concat1(SStream *ss, const char c);
 
+void printInt64BangDec(SStream *O, int64_t val);
 void printInt64Bang(SStream *O, int64_t val);
 
 void printUInt64Bang(SStream *O, uint64_t val);
@@ -41,6 +42,7 @@ void printInt32Bang(SStream *O, int32_t val);
 
 void printInt32(SStream *O, int32_t val);
 
+void printUInt32BangDec(SStream *O, uint32_t val);
 void printUInt32Bang(SStream *O, uint32_t val);
 
 void printUInt32(SStream *O, uint32_t val);

@@ -1363,7 +1363,7 @@ void printOperand(MCInst *MI, unsigned OpNo, SStream *O)
 	} else if (MCOperand_isImm(Op)) {
 		MCOperand *Op = MCInst_getOperand(MI, (OpNo));
 		SStream_concat(O, "%s", markup("<imm:"));
-		printInt64Bang(O, MCOperand_getImm(Op));
+		printInt64BangDec(O, MCOperand_getImm(Op));
 		SStream_concat0(O, markup(">"));
 	} else {
 		assert(0 && "Expressions are not supported.");
